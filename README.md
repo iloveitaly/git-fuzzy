@@ -117,6 +117,7 @@ For the ideal experience, install the following optional tools to your `PATH`:
 - [`delta`](https://github.com/dandavison/delta) or [`diff-so-fancy`](https://github.com/so-fancy/diff-so-fancy) for nicer looking diffs
 - [`bat`](https://github.com/sharkdp/bat) for a colorized alternative to `cat`
 - [`eza`](https://github.com/eza-community/eza) for a `git`-enabled, and better colorized alternative to `ls`
+- [`fswatch`](https://github.com/emcrisostomo/fswatch) (macOS) or `inotifywait` (Linux) to auto-reload `git fuzzy status` when files change
 
 `git fuzzy diff` uses `grep` to highlight your search term. The default may clash with `diff` formatting or just not be to your liking. You can configure `git fuzzy` without affecting the global setting.
 
@@ -212,6 +213,22 @@ export GF_HORIZONTAL_SMALL_SCREEN_CALCULATION='__HEIGHT__ <= 30'
 # use __HEIGHT__ for horizontal scenarios
 export GF_VERTICAL_SMALL_SCREEN_CALCULATION='__HEIGHT__ <= 60'
 ```
+
+### Auto-Reload
+
+`git fuzzy status` automatically reloads when files in the working tree change. This uses fzf's `--listen` feature with a background file watcher (`fswatch` on macOS, `inotifywait` on Linux). Events are debounced to avoid excessive reloads during rapid changes.
+
+```bash
+# seconds to batch filesystem events before reloading (default: 0.5)
+export GF_STATUS_WATCH_DEBOUNCE='0.3'
+
+# disable auto-reload entirely
+export GF_STATUS_WATCH='0'
+```
+
+If neither `fswatch` nor `inotifywait` is on your `PATH`, auto-reload is silently skipped.
+
+### Keyboard Shortcuts
 
 You may want to customize the default keyboard shortcuts. There are [many configuration options available](https://github.com/bigH/git-fuzzy/pull/16/files). Here's an example:
 

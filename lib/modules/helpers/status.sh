@@ -96,3 +96,34 @@ gf_helper_status_commit() {
     gf_interactive_command_logged git fuzzy status
   fi
 }
+
+gf_helper_status_watch() {
+  local port="$1"
+  local debounce="${GF_STATUS_WATCH_DEBOUNCE:-0.5}"
+  local git_root
+  git_root="$(git rev-parse --show-toplevel)"
+
+  if [ "${GF_STATUS_WATCH}" = "0" ]; then
+    return
+  fi
+
+  local reload_action='reload(git fuzzy helper status_menu_content)'
+
+  # Self-terminates when fzf exits: curl fails → break → pipe closes → SIGPIPE kills watcher
+  if type fswatch > /dev/null 2>&1; then
+    fswatch --latency "$debounce" --include '\.git/(index|HEAD|refs/)' --exclude '\.git/' -r "$git_root" | while read -r _; do
+      while read -r -t 0.05 _; do :; done
+      curl -s -XPOST "localhost:$port" -d "$reload_action" > /dev/null 2>&1 || break
+    done
+  elif type inotifywait > /dev/null 2>&1; then
+    # inotifywait lacks include-before-exclude, so run two watchers and merge their output
+    {
+      inotifywait -m -r -q --exclude '\.git/' -e modify,create,delete,move "$git_root"
+      inotifywait -m -q -e modify "$git_root/.git/index" "$git_root/.git/HEAD"
+      inotifywait -m -r -q -e modify,create,delete,move "$git_root/.git/refs"
+    } | while read -r _; do
+      while read -r -t "$debounce" _; do :; done
+      curl -s -XPOST "localhost:$port" -d "$reload_action" > /dev/null 2>&1 || break
+    done
+  fi
+}

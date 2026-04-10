@@ -28,10 +28,12 @@ gf_fzf_status() {
   RELOAD="reload:git fuzzy helper status_menu_content"
 
   gf_fzf -m --header "$GF_STATUS_HEADER" \
+            --listen \
             --header-lines=2 \
             --expect="$(lowercase "$GIT_FUZZY_STATUS_EDIT_KEY"),$(lowercase "$GIT_FUZZY_STATUS_COMMIT_KEY"),$(lowercase "$GIT_FUZZY_STATUS_ADD_PATCH_KEY")" \
             --nth=2 \
             --preview 'git fuzzy helper status_preview_content {1} {2} {4}' \
+            --bind 'start:execute-silent(git fuzzy helper status_watch $FZF_PORT > /dev/null 2>&1 &)' \
             --bind 'click-header:reload(git fuzzy helper status_menu_content)' \
             --bind 'backward-eof:reload(git fuzzy helper status_menu_content)' \
             --bind "$(lowercase "$GIT_FUZZY_STATUS_AMEND_KEY"):execute-silent(git fuzzy helper status_amend {+2..})+down+$RELOAD" \
