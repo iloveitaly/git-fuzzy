@@ -37,6 +37,33 @@ gf_helper_status_preview_content() {
   fi
 }
 
+# Full-screen pager view of a file's diff, invoked from the inspect keybind.
+gf_helper_status_diff() {
+  STATUS_CODE="$1"
+  FILE_PATH="$2"
+  RENAMED_FILE_PATH="$3"
+
+  # Trap Ctrl-C so it returns to fzf instead of killing git-fuzzy
+  trap 'exit 0' INT
+  # Instruct less (the default pager) to exit immediately on Ctrl-C
+  export LESS="${LESS:-} -K"
+
+  if [ "??" = "$STATUS_CODE" ]; then
+    # new files/dirs
+    if [ -d "$FILE_PATH" ]; then
+      # shellcheck disable=2086
+      $GF_STATUS_DIRECTORY_PREVIEW_COMMAND "$FILE_PATH" | ${PAGER:-less -R}
+    else
+      # shellcheck disable=2086
+      $GF_STATUS_FILE_PREVIEW_COMMAND "$FILE_PATH" | ${PAGER:-less -R}
+    fi
+  elif [ ! -e "$FILE_PATH" ] && [ -n "$RENAMED_FILE_PATH" ]; then
+    git diff HEAD -M -- "$FILE_PATH" "$RENAMED_FILE_PATH"
+  else
+    git diff HEAD -M -- "$FILE_PATH"
+  fi
+}
+
 gf_helper_status_menu_content() {
   gf_git_command_with_header 2 status --short
 }
