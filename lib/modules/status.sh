@@ -26,7 +26,8 @@ if [ "$(particularly_small_screen)" = '1' ]; then
 fi
 
 gf_fzf_status() {
-  RELOAD_SYNC="reload-sync(git fuzzy helper status_menu_content)"
+  local passive_reload='execute-silent(git fuzzy helper status_reload_preserving_selection $FZF_PORT {+})'
+  local reload_sync="reload-sync(git fuzzy helper status_menu_content)"
 
   gf_fzf -m --header "$GF_STATUS_HEADER" \
             --listen \
@@ -35,13 +36,13 @@ gf_fzf_status() {
             --nth=2 \
             --preview 'git fuzzy helper status_preview_content {1} {2} {4}' \
             --bind 'start:execute-silent(git fuzzy helper status_watch $FZF_PORT > /dev/null 2>&1 &)' \
-            --bind 'click-header:reload(git fuzzy helper status_menu_content)' \
-            --bind 'backward-eof:reload(git fuzzy helper status_menu_content)' \
+            --bind "click-header:$passive_reload" \
+            --bind "backward-eof:$passive_reload" \
             --bind "$(lowercase "$GIT_FUZZY_STATUS_DIFF_KEY"):execute(git fuzzy helper status_diff {1} {2} {4})" \
-            --bind "$(lowercase "$GIT_FUZZY_STATUS_AMEND_KEY"):execute-silent(git fuzzy helper status_amend {+2..})+$RELOAD_SYNC+down" \
-            --bind "$(lowercase "$GIT_FUZZY_STATUS_ADD_KEY"):execute-silent(git fuzzy helper status_add {+2..})+$RELOAD_SYNC+down" \
-            --bind "$(lowercase "$GIT_FUZZY_STATUS_RESET_KEY"):execute-silent(git fuzzy helper status_reset {+2..})+$RELOAD_SYNC+down" \
-            --bind "$(lowercase "$GIT_FUZZY_STATUS_DISCARD_KEY"):execute-silent(git fuzzy helper status_discard {+2..})+$RELOAD_SYNC"
+            --bind "$(lowercase "$GIT_FUZZY_STATUS_AMEND_KEY"):execute-silent(git fuzzy helper status_amend {+2..})+$reload_sync+down" \
+            --bind "$(lowercase "$GIT_FUZZY_STATUS_ADD_KEY"):execute-silent(git fuzzy helper status_add {+2..})+$reload_sync+down" \
+            --bind "$(lowercase "$GIT_FUZZY_STATUS_RESET_KEY"):execute-silent(git fuzzy helper status_reset {+2..})+$reload_sync+down" \
+            --bind "$(lowercase "$GIT_FUZZY_STATUS_DISCARD_KEY"):execute-silent(git fuzzy helper status_discard {+2..})+$reload_sync"
 }
 
 gf_status_interpreter() {
@@ -50,12 +51,14 @@ gf_status_interpreter() {
   TAIL="$(echo "$CONTENT" | tail -n +2)"
 
   if [ "$(lowercase "$HEAD")" = "$(lowercase "$GIT_FUZZY_STATUS_EDIT_KEY")" ]; then
-    local selected_file=$(echo "$TAIL" | cut -c4- | sed 's/.* -> //' | join_lines_quoted)
+    local selected_file
+    selected_file=$(echo "$TAIL" | cut -c4- | sed 's/.* -> //' | join_lines_quoted)
     eval "git fuzzy helper status_edit $selected_file"
   elif [ "$(lowercase "$HEAD")" = "$(lowercase "$GIT_FUZZY_STATUS_COMMIT_KEY")" ]; then
     eval "git fuzzy helper status_commit"
   elif [ "$(lowercase "$HEAD")" = "$(lowercase "$GIT_FUZZY_STATUS_ADD_PATCH_KEY")" ]; then
-    local selected_file=$(echo "$TAIL" | cut -c4- | sed 's/.* -> //' | join_lines_quoted)
+    local selected_file
+    selected_file=$(echo "$TAIL" | cut -c4- | sed 's/.* -> //' | join_lines_quoted)
     eval "git fuzzy helper status_add_patch $selected_file"
   else
     echo "$TAIL" | cut -c4- | sed 's/.* -> //'
