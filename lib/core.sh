@@ -2,6 +2,10 @@
 
 GIT_FUZZY_SELECT_ALL_KEY="${GIT_FUZZY_SELECT_ALL_KEY:-Alt-A}"
 GIT_FUZZY_SELECT_NONE_KEY="${GIT_FUZZY_SELECT_NONE_KEY:-Alt-D}"
+GIT_FUZZY_PREVIEW_WRAP_KEY="${GIT_FUZZY_PREVIEW_WRAP_KEY:-Alt-W}"
+
+GF_PREVIEW_WRAP_HEADER="${GREEN}wrap preview${NORMAL}  ${WHITE}$GIT_FUZZY_PREVIEW_WRAP_KEY${NORMAL}"
+export GF_PREVIEW_WRAP_HEADER
 
 if [ -z "$GF_FZF_DEFAULTS_SET" ]; then
   export GF_FZF_DEFAULTS_SET="YES"
@@ -143,6 +147,7 @@ gf_fzf() {
   local gf_command="fzf --ansi --no-sort --no-info --multi \
     $FZF_DEFAULT_OPTS_MULTI \
     $(preview_window_settings) \
+    --bind \"$(lowercase "$GIT_FUZZY_PREVIEW_WRAP_KEY"):toggle-preview-wrap\" \
     $(quote_params "$@")"
 
   if [ -n "$GF_COMMAND_FZF_DEBUG_MODE" ]; then
@@ -155,6 +160,7 @@ gf_fzf() {
 gf_fzf_one() {
   local gf_command="fzf +m --ansi --no-sort --no-info \
             $(preview_window_settings) \
+            --bind \"$(lowercase "$GIT_FUZZY_PREVIEW_WRAP_KEY"):toggle-preview-wrap\" \
             $(quote_params "$@")"
   if [ -n "$GF_COMMAND_FZF_DEBUG_MODE" ]; then
     gf_log_command_string "$gf_command"

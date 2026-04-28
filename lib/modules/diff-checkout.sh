@@ -6,6 +6,7 @@ GF_DIFF_CHECKOUT_HEADER='
   Press '"${WHITE}Enter${NORMAL}"' to checkout selected file(s)
 
   '"${GRAY}-- (files will not disappear) --${NORMAL}"'
+  '"$GF_PREVIEW_WRAP_HEADER"'
 
 '
 

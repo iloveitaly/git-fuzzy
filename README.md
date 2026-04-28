@@ -234,6 +234,7 @@ You may want to customize the default keyboard shortcuts. There are [many config
 
 ```bash
 export GIT_FUZZY_STATUS_ADD_KEY='Ctrl-A'
+export GIT_FUZZY_PREVIEW_WRAP_KEY='Ctrl-W' # default: Alt-W
 ```
 
 If you are using nano as your default editor, you need to pass `/dev/tty` as stdin otherwise you may receive an error similar to `Too many errors from stdintor to close the file...`:

@@ -5,6 +5,7 @@ GF_DIFF_HEADER='
 Type to filter. '"${WHITE}Enter${NORMAL} to ${GREEN}ACCEPT${NORMAL}."'
 
   '"${GREEN}mark${NORMAL}  ${WHITE}Tab${NORMAL}"'
+  '"$GF_PREVIEW_WRAP_HEADER"'
 
 '
 

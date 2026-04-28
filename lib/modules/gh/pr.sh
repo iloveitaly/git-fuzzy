@@ -5,6 +5,7 @@ GF_PR_HEADER='
    '"${YELLOW}${BOLD}∆${NORMAL} ${GREEN}diff${NORMAL}  ${WHITE}Enter${NORMAL}"'
    '"${BOLD}🌐${NORMAL} ${GREEN}web${NORMAL}  ${WHITE}Alt-O${NORMAL}"'
    '"   ${GREEN}log${NORMAL}  ${WHITE}Alt-L${NORMAL}"'
+   '"$GF_PREVIEW_WRAP_HEADER"'
 
 '
 
