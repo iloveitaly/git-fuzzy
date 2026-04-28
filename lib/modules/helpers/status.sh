@@ -40,6 +40,14 @@ gf_helper_status_preview_content() {
 }
 
 # Full-screen pager view of a file's diff, invoked from the inspect keybind.
+gf_helper_status_inspect_pager() {
+  less -R -K -+F
+}
+
+gf_helper_status_diff_renderer() {
+  PAGER=cat DELTA_PAGER=cat BAT_PAGER=cat gf_diff_renderer
+}
+
 gf_helper_status_diff() {
   STATUS_CODE="$1"
   FILE_PATH="$2"
@@ -47,22 +55,26 @@ gf_helper_status_diff() {
 
   # Trap Ctrl-C so it returns to fzf instead of killing git-fuzzy
   trap 'exit 0' INT
-  # Instruct less (the default pager) to exit immediately on Ctrl-C
-  export LESS="${LESS:-} -K"
 
   if [ "??" = "$STATUS_CODE" ]; then
     # new files/dirs
     if [ -d "$FILE_PATH" ]; then
       # shellcheck disable=2086
-      $GF_STATUS_DIRECTORY_PREVIEW_COMMAND "$FILE_PATH" | ${PAGER:-less -R}
+      $GF_STATUS_DIRECTORY_PREVIEW_COMMAND "$FILE_PATH" | gf_helper_status_inspect_pager
     else
       # shellcheck disable=2086
-      $GF_STATUS_FILE_PREVIEW_COMMAND "$FILE_PATH" | ${PAGER:-less -R}
+      $GF_STATUS_FILE_PREVIEW_COMMAND "$FILE_PATH" | gf_helper_status_inspect_pager
     fi
   elif [ ! -e "$FILE_PATH" ] && [ -n "$RENAMED_FILE_PATH" ]; then
-    git diff HEAD -M -- "$FILE_PATH" "$RENAMED_FILE_PATH"
+    git --no-pager -c color.ui=always \
+      diff HEAD -M -- "$FILE_PATH" "$RENAMED_FILE_PATH" |
+      gf_helper_status_diff_renderer |
+      gf_helper_status_inspect_pager
   else
-    git diff HEAD -M -- "$FILE_PATH"
+    git --no-pager -c color.ui=always \
+      diff HEAD -M -- "$FILE_PATH" |
+      gf_helper_status_diff_renderer |
+      gf_helper_status_inspect_pager
   fi
 }
 

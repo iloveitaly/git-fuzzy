@@ -243,9 +243,9 @@ gf_diff_renderer() {
     fi
   elif type delta >/dev/null 2>&1; then
     if [ -n "$FZF_PREVIEW_COLUMNS" ]; then
-      cat - | delta --width "$FZF_PREVIEW_COLUMNS"
+      cat - | delta --paging=never --width "$FZF_PREVIEW_COLUMNS"
     else
-      cat - | delta
+      cat - | delta --paging=never
     fi
   elif type diff-so-fancy >/dev/null 2>&1; then
     cat - | diff-so-fancy
