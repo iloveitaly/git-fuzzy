@@ -8,7 +8,8 @@ GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY="${GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY:-Alt-
 
 GF_PREVIEW_HEADER_MIN_LINES="${GF_PREVIEW_HEADER_MIN_LINES:-8}"
 GF_PREVIEW_HEADER_MIN_COLUMNS="${GF_PREVIEW_HEADER_MIN_COLUMNS:-50}"
-GF_PREVIEW_RESIZE_SIZE_STEP="${GF_PREVIEW_RESIZE_SIZE_STEP:-${GF_PREVIEW_RESIZE_PERCENT_STEP:-5}}"
+GF_PREVIEW_RESIZE_HORIZONTAL_STEP="${GF_PREVIEW_RESIZE_HORIZONTAL_STEP:-${GF_PREVIEW_RESIZE_SIZE_STEP:-${GF_PREVIEW_RESIZE_PERCENT_STEP:-5}}}"
+GF_PREVIEW_RESIZE_VERTICAL_STEP="${GF_PREVIEW_RESIZE_VERTICAL_STEP:-${GF_PREVIEW_RESIZE_SIZE_STEP:-${GF_PREVIEW_RESIZE_PERCENT_STEP:-2}}}"
 
 if [ -z "$GF_FZF_DEFAULTS_SET" ]; then
   export GF_FZF_DEFAULTS_SET="YES"
@@ -176,16 +177,20 @@ gf_helper_preview_shortcuts_header() {
 gf_helper_preview_resize() {
   local action="$1"
   local current_size
+  local dimension
   local total_size
   local next_size
-  local step="$GF_PREVIEW_RESIZE_SIZE_STEP"
+  local step
 
-  if [ "$(preview_window_resize_dimension)" = "lines" ]; then
+  dimension="$(preview_window_resize_dimension)"
+  if [ "$dimension" = "lines" ]; then
     current_size="$FZF_PREVIEW_LINES"
     total_size="$FZF_LINES"
+    step="$GF_PREVIEW_RESIZE_VERTICAL_STEP"
   else
     current_size="$FZF_PREVIEW_COLUMNS"
     total_size="$FZF_COLUMNS"
+    step="$GF_PREVIEW_RESIZE_HORIZONTAL_STEP"
   fi
 
   gf_is_positive_integer "$current_size" || return

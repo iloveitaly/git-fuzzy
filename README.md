@@ -204,6 +204,26 @@ export GF_HORIZONTAL_PREVIEW_PERCENT_CALCULATION='max(50, min(80, 100 - (7000 / 
 export GF_VERTICAL_PREVIEW_PERCENT_CALCULATION='max(50, min(80, 100 - (5000 / __HEIGHT__)))'
 ```
 
+You can configure how much the preview grows or shrinks when using the preview resize shortcuts. Horizontal previews resize by columns; vertical previews resize by rows.
+
+```bash
+# default: 5
+export GF_PREVIEW_RESIZE_HORIZONTAL_STEP='5'
+
+# default: 2
+export GF_PREVIEW_RESIZE_VERTICAL_STEP='2'
+```
+
+You can also configure when the preview shortcut header is hidden inside small preview panes.
+
+```bash
+# default: 8
+export GF_PREVIEW_HEADER_MIN_LINES='8'
+
+# default: 50
+export GF_PREVIEW_HEADER_MIN_COLUMNS='50'
+```
+
 In cases where you are using a particularly small terminal, you can configure the following calculations to determine when to hide extraneous things. Note that both defaults use `__HEIGHT__`, but `__WIDTH__` is also available.
 
 ```bash
