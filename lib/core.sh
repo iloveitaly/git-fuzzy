@@ -8,7 +8,7 @@ GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY="${GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY:-Alt-
 
 GF_PREVIEW_HEADER_MIN_LINES="${GF_PREVIEW_HEADER_MIN_LINES:-8}"
 GF_PREVIEW_HEADER_MIN_COLUMNS="${GF_PREVIEW_HEADER_MIN_COLUMNS:-50}"
-GF_PREVIEW_RESIZE_PERCENT_STEP="${GF_PREVIEW_RESIZE_PERCENT_STEP:-5}"
+GF_PREVIEW_RESIZE_SIZE_STEP="${GF_PREVIEW_RESIZE_SIZE_STEP:-${GF_PREVIEW_RESIZE_PERCENT_STEP:-5}}"
 
 if [ -z "$GF_FZF_DEFAULTS_SET" ]; then
   export GF_FZF_DEFAULTS_SET="YES"
@@ -152,9 +152,8 @@ gf_helper_preview_resize() {
   local direction
   local current_size
   local total_size
-  local current_percent
-  local next_percent
-  local step="$GF_PREVIEW_RESIZE_PERCENT_STEP"
+  local next_size
+  local step="$GF_PREVIEW_RESIZE_SIZE_STEP"
 
   if [ "$(is_vertical)" = '1' ]; then
     direction="$GF_VERTICAL_PREVIEW_LOCATION"
@@ -174,23 +173,22 @@ gf_helper_preview_resize() {
   gf_is_positive_integer "$total_size" || return
   gf_is_positive_integer "$step" || step=5
 
-  current_percent="$((current_size * 100 / total_size))"
   case "$action" in
     increase)
-      next_percent="$((current_percent + step))"
+      next_size="$((current_size + step))"
       ;;
     decrease)
-      next_percent="$((current_percent - step))"
+      next_size="$((current_size - step))"
       ;;
     *)
       return
       ;;
   esac
 
-  [ "$next_percent" -lt 10 ] && next_percent=10
-  [ "$next_percent" -gt 90 ] && next_percent=90
+  [ "$next_size" -lt 1 ] && next_size=1
+  [ "$next_size" -gt "$total_size" ] && next_size="$total_size"
 
-  printf 'change-preview-window:%s%%\n' "$next_percent"
+  printf 'change-preview-window:%s\n' "$next_size"
 }
 
 gf_is_in_git_repo() {
