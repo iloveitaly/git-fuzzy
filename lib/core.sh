@@ -96,6 +96,32 @@ preview_window_dimension() {
   esac
 }
 
+preview_window_resize_dimension() {
+  local line_gap
+  local column_gap
+
+  if gf_is_positive_integer "$FZF_LINES" &&
+    gf_is_positive_integer "$FZF_COLUMNS" &&
+    gf_is_positive_integer "$FZF_PREVIEW_LINES" &&
+    gf_is_positive_integer "$FZF_PREVIEW_COLUMNS"; then
+    line_gap="$((FZF_LINES - FZF_PREVIEW_LINES))"
+    column_gap="$((FZF_COLUMNS - FZF_PREVIEW_COLUMNS))"
+
+    if [ "$column_gap" -le "$line_gap" ]; then
+      echo "lines"
+    else
+      echo "columns"
+    fi
+    return
+  fi
+
+  if [ "$(is_vertical)" = '1' ]; then
+    preview_window_dimension "$GF_VERTICAL_PREVIEW_LOCATION"
+  else
+    preview_window_dimension "$GF_HORIZONTAL_PREVIEW_LOCATION"
+  fi
+}
+
 preview_window_settings() {
   echo "$(preview_window_size_and_direction):nohidden"
 }
@@ -149,19 +175,12 @@ gf_helper_preview_shortcuts_header() {
 
 gf_helper_preview_resize() {
   local action="$1"
-  local direction
   local current_size
   local total_size
   local next_size
   local step="$GF_PREVIEW_RESIZE_SIZE_STEP"
 
-  if [ "$(is_vertical)" = '1' ]; then
-    direction="$GF_VERTICAL_PREVIEW_LOCATION"
-  else
-    direction="$GF_HORIZONTAL_PREVIEW_LOCATION"
-  fi
-
-  if [ "$(preview_window_dimension "$direction")" = "lines" ]; then
+  if [ "$(preview_window_resize_dimension)" = "lines" ]; then
     current_size="$FZF_PREVIEW_LINES"
     total_size="$FZF_LINES"
   else
