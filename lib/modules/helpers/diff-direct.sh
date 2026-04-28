@@ -12,6 +12,8 @@ gf_helper_diff_direct_menu_content() {
 }
 
 gf_helper_diff_direct_preview_content() {
+  gf_preview_shortcuts_header
+
   QUERY="$1"
   shift
 

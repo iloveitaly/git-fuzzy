@@ -5,6 +5,8 @@ gf_helper_pr_menu_content() {
 }
 
 gf_helper_pr_preview_content() {
+  gf_preview_shortcuts_header
+
   if [ -n "$1" ]; then
     DIFF_PARAMS="$(gh pr view "$1" --json baseRefName,headRefName --jq '"\(.baseRefName) \(.headRefName)"')"
     if [ -n "$DIFF_PARAMS" ]; then

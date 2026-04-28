@@ -5,7 +5,6 @@ GF_DIFF_HEADER='
 Type to filter. '"${WHITE}Enter${NORMAL} to ${GREEN}ACCEPT${NORMAL}."'
 
   '"${GREEN}mark${NORMAL}  ${WHITE}Tab${NORMAL}"'
-  '"$GF_PREVIEW_WRAP_HEADER"'
 
 '
 
@@ -16,7 +15,10 @@ fi
 GF_DIFF_PREVIEW='
   [ {1} != "nothing" ] &&
     git fuzzy helper diff_preview_content {2} ||
-    echo "nothing to show"
+    {
+      git fuzzy helper preview_shortcuts_header
+      echo "nothing to show"
+    }
 '
 
 gf_fzf_diff_select() {

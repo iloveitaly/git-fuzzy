@@ -19,6 +19,8 @@ gf_helper_status_preview_content() {
   FILE_PATH="$2"
   RENAMED_FILE_PATH="$3"
 
+  gf_preview_shortcuts_header
+
   # NB: git status will quote paths with whitespace. currently that's not supported
 
   if [ "??" = "$STATUS_CODE" ]; then

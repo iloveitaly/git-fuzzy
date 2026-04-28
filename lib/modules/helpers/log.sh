@@ -39,6 +39,8 @@ gf_helper_log_menu_content() {
 }
 
 gf_helper_log_preview_content() {
+  gf_preview_shortcuts_header
+
   if [ -z "$1" ]; then
     echo "nothing to show (empty line)"
   else

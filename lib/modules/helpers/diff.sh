@@ -36,6 +36,8 @@ gf_helper_diff_menu_content() {
 }
 
 gf_helper_diff_preview_content() {
+  gf_preview_shortcuts_header
+
   if [ -z "$1" ]; then
     echo "nothing to show"
   elif [ "$1" = '.' ]; then

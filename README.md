@@ -1,6 +1,6 @@
 # `git-fuzzy`
 
-A CLI interface to git that relies heavily on [`fzf`](https://github.com/junegunn/fzf) (version `0.21.0` or higher).
+A CLI interface to git that relies heavily on [`fzf`](https://github.com/junegunn/fzf) (version `0.46.0` or higher).
 
 You can run `git add` and `git reset` by selecting or cursoring. You can commit interactively.
 
@@ -235,6 +235,8 @@ You may want to customize the default keyboard shortcuts. There are [many config
 ```bash
 export GIT_FUZZY_STATUS_ADD_KEY='Ctrl-A'
 export GIT_FUZZY_PREVIEW_WRAP_KEY='Ctrl-W' # default: Alt-W
+export GIT_FUZZY_PREVIEW_SIZE_INCREASE_KEY='Alt-+' # default: Alt-=
+export GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY='Alt-_' # default: Alt--
 ```
 
 If you are using nano as your default editor, you need to pass `/dev/tty` as stdin otherwise you may receive an error similar to `Too many errors from stdintor to close the file...`:

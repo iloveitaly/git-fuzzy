@@ -46,6 +46,8 @@ gf_helper_branch_menu_content() {
 }
 
 gf_helper_branch_preview_content() {
+  gf_preview_shortcuts_header
+
   if [ -z "$1" ]; then
     echo "nothing to show"
   else

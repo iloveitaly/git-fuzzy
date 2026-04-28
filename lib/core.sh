@@ -3,9 +3,12 @@
 GIT_FUZZY_SELECT_ALL_KEY="${GIT_FUZZY_SELECT_ALL_KEY:-Alt-A}"
 GIT_FUZZY_SELECT_NONE_KEY="${GIT_FUZZY_SELECT_NONE_KEY:-Alt-D}"
 GIT_FUZZY_PREVIEW_WRAP_KEY="${GIT_FUZZY_PREVIEW_WRAP_KEY:-Alt-W}"
+GIT_FUZZY_PREVIEW_SIZE_INCREASE_KEY="${GIT_FUZZY_PREVIEW_SIZE_INCREASE_KEY:-Alt-=}"
+GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY="${GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY:-Alt--}"
 
-GF_PREVIEW_WRAP_HEADER="${GREEN}wrap preview${NORMAL}  ${WHITE}$GIT_FUZZY_PREVIEW_WRAP_KEY${NORMAL}"
-export GF_PREVIEW_WRAP_HEADER
+GF_PREVIEW_HEADER_MIN_LINES="${GF_PREVIEW_HEADER_MIN_LINES:-8}"
+GF_PREVIEW_HEADER_MIN_COLUMNS="${GF_PREVIEW_HEADER_MIN_COLUMNS:-50}"
+GF_PREVIEW_RESIZE_PERCENT_STEP="${GF_PREVIEW_RESIZE_PERCENT_STEP:-5}"
 
 if [ -z "$GF_FZF_DEFAULTS_SET" ]; then
   export GF_FZF_DEFAULTS_SET="YES"
@@ -82,12 +85,112 @@ preview_window_size_and_direction() {
   echo "--preview-window=$PREVIEW_DIRECTION:${PREVIEW_SIZE%%.*}%"
 }
 
+preview_window_dimension() {
+  case "$1" in
+    up|down|top|bottom)
+      echo "lines"
+      ;;
+    *)
+      echo "columns"
+      ;;
+  esac
+}
+
 preview_window_settings() {
   echo "$(preview_window_size_and_direction):nohidden"
 }
 
 hidden_preview_window_settings() {
   echo "$(preview_window_size_and_direction):hidden"
+}
+
+gf_is_positive_integer() {
+  case "$1" in
+    ''|*[!0-9]*)
+      return 1
+      ;;
+    *)
+      [ "$1" -gt 0 ]
+      ;;
+  esac
+}
+
+gf_preview_header_is_hidden() {
+  local min_lines="$GF_PREVIEW_HEADER_MIN_LINES"
+  local min_columns="$GF_PREVIEW_HEADER_MIN_COLUMNS"
+
+  gf_is_positive_integer "$FZF_PREVIEW_LINES" || return 0
+  gf_is_positive_integer "$FZF_PREVIEW_COLUMNS" || return 0
+  gf_is_positive_integer "$min_lines" || min_lines=8
+  gf_is_positive_integer "$min_columns" || min_columns=50
+
+  [ "$FZF_PREVIEW_LINES" -lt "$min_lines" ] ||
+    [ "$FZF_PREVIEW_COLUMNS" -lt "$min_columns" ]
+}
+
+gf_preview_shortcuts_header() {
+  gf_preview_header_is_hidden && return
+
+  printf "%s%s %s%s  %s%-5s%s     %s%-7s %s%s  %s%s%s\n" \
+    "$GREEN" "wrap" "↩" "$NORMAL" \
+    "$WHITE" "$GIT_FUZZY_PREVIEW_WRAP_KEY" "$NORMAL" \
+    "$GREEN" "bigger" "↗" "$NORMAL" \
+    "$WHITE" "$GIT_FUZZY_PREVIEW_SIZE_INCREASE_KEY" "$NORMAL"
+  printf "%18s%s%-7s %s%s  %s%s%s" "" \
+    "$GREEN" "smaller" "↙" "$NORMAL" \
+    "$WHITE" "$GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY" "$NORMAL"
+  echo
+  echo
+}
+
+gf_helper_preview_shortcuts_header() {
+  gf_preview_shortcuts_header
+}
+
+gf_helper_preview_resize() {
+  local action="$1"
+  local direction
+  local current_size
+  local total_size
+  local current_percent
+  local next_percent
+  local step="$GF_PREVIEW_RESIZE_PERCENT_STEP"
+
+  if [ "$(is_vertical)" = '1' ]; then
+    direction="$GF_VERTICAL_PREVIEW_LOCATION"
+  else
+    direction="$GF_HORIZONTAL_PREVIEW_LOCATION"
+  fi
+
+  if [ "$(preview_window_dimension "$direction")" = "lines" ]; then
+    current_size="$FZF_PREVIEW_LINES"
+    total_size="$FZF_LINES"
+  else
+    current_size="$FZF_PREVIEW_COLUMNS"
+    total_size="$FZF_COLUMNS"
+  fi
+
+  gf_is_positive_integer "$current_size" || return
+  gf_is_positive_integer "$total_size" || return
+  gf_is_positive_integer "$step" || step=5
+
+  current_percent="$((current_size * 100 / total_size))"
+  case "$action" in
+    increase)
+      next_percent="$((current_percent + step))"
+      ;;
+    decrease)
+      next_percent="$((current_percent - step))"
+      ;;
+    *)
+      return
+      ;;
+  esac
+
+  [ "$next_percent" -lt 10 ] && next_percent=10
+  [ "$next_percent" -gt 90 ] && next_percent=90
+
+  printf 'change-preview-window:%s%%\n' "$next_percent"
 }
 
 gf_is_in_git_repo() {
@@ -148,6 +251,8 @@ gf_fzf() {
     $FZF_DEFAULT_OPTS_MULTI \
     $(preview_window_settings) \
     --bind \"$(lowercase "$GIT_FUZZY_PREVIEW_WRAP_KEY"):toggle-preview-wrap\" \
+    --bind \"$(lowercase "$GIT_FUZZY_PREVIEW_SIZE_INCREASE_KEY"):transform(git fuzzy helper preview_resize increase)\" \
+    --bind \"$(lowercase "$GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY"):transform(git fuzzy helper preview_resize decrease)\" \
     $(quote_params "$@")"
 
   if [ -n "$GF_COMMAND_FZF_DEBUG_MODE" ]; then
@@ -161,6 +266,8 @@ gf_fzf_one() {
   local gf_command="fzf +m --ansi --no-sort --no-info \
             $(preview_window_settings) \
             --bind \"$(lowercase "$GIT_FUZZY_PREVIEW_WRAP_KEY"):toggle-preview-wrap\" \
+            --bind \"$(lowercase "$GIT_FUZZY_PREVIEW_SIZE_INCREASE_KEY"):transform(git fuzzy helper preview_resize increase)\" \
+            --bind \"$(lowercase "$GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY"):transform(git fuzzy helper preview_resize decrease)\" \
             $(quote_params "$@")"
   if [ -n "$GF_COMMAND_FZF_DEBUG_MODE" ]; then
     gf_log_command_string "$gf_command"

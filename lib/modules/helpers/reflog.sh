@@ -24,6 +24,8 @@ gf_helper_reflog_menu_content() {
 }
 
 gf_helper_reflog_preview_content() {
+  gf_preview_shortcuts_header
+
   if [ -z "$1" ]; then
     echo "nothing to show"
   else

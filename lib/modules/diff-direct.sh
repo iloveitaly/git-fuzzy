@@ -3,7 +3,6 @@
 # shellcheck disable=2016
 GF_DIFF_DIRECT_HEADER='
   Query above is with these args '"'${MAGENTA}${GF_DIFF_SEARCH_DEFAULTS} query${NORMAL}'"'
-  '"$GF_PREVIEW_WRAP_HEADER"'
 
 '
 

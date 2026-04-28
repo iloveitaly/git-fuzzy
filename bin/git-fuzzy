@@ -66,10 +66,12 @@ if ! type fzf >/dev/null 2>&1; then
 fi
 
 FZF_VERSION="$(fzf --version)"
-MIN_FZF_VERSION="0.21.0"
-if [ "$FZF_VERSION" = "$(echo -e "$FZF_VERSION\n$MIN_FZF_VERSION" | sort -V | head -n1)" ]; then
+MIN_FZF_VERSION="0.46.0"
+if [ "$MIN_FZF_VERSION" != "$(printf '%s\n%s\n' "${FZF_VERSION%% *}" "$MIN_FZF_VERSION" | sort -V | head -n1)" ]; then
   # shellcheck disable=2016
-  gf_log_warning '`fzf` is too old and may not work properly'
+  # shellcheck disable=2016
+  gf_log_error '`fzf` '"${MIN_FZF_VERSION}"' or newer is required'
+  exit 1
 fi
 
 # NB: checking for actually _unset_
