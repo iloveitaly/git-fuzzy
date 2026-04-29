@@ -39,13 +39,14 @@ gf_helper_log_menu_content() {
 }
 
 gf_helper_log_preview_content() {
-  gf_preview_shortcuts_header
-
   if [ -z "$1" ]; then
+    gf_preview_shortcuts_header
     echo "nothing to show (empty line)"
   else
     REF="$(extract_commit_hash_from_first_line "$1")"
     if [ -n "$REF" ]; then
+      gf_preview_shortcuts_header_with_inspect
+
       QUERY="$(git fuzzy helper log_diff_query "$2")"
       BASE="$(extract_commit_hash_from_first_line "$3")"
 
@@ -67,8 +68,42 @@ gf_helper_log_preview_content() {
         gf_git_command_with_header_default_parameters 1 "$GF_DIFF_COMMIT_PREVIEW_DEFAULTS" diff "$BASE" "$REF" $QUERY | gf_diff_renderer
       fi
     else
+      gf_preview_shortcuts_header
       echo "nothing to show (no commit found on line)"
     fi
+  fi
+}
+
+gf_helper_log_inspect() {
+  [ -z "$1" ] && return
+
+  REF="$(extract_commit_hash_from_first_line "$1")"
+  [ -z "$REF" ] && return
+
+  trap 'exit 0' INT
+
+  QUERY="$(git fuzzy helper log_diff_query "$2")"
+  BASE="$(extract_commit_hash_from_first_line "$3")"
+  FOLD_WIDTH="${FZF_PREVIEW_COLUMNS:-${WIDTH:-80}}"
+
+  if [ "$BASE" == "$REF" ]; then
+    {
+      if [ "$(particularly_small_screen)" = '1' ]; then
+        gf_git_command show --decorate --oneline --no-patch "$REF" | fold -s -w "$FOLD_WIDTH"
+      else
+        gf_git_command show --decorate --no-patch "$REF" | fold -s -w "$FOLD_WIDTH"
+        echo
+      fi
+
+      # shellcheck disable=2086
+      gf_git_command_with_header_default_parameters 1 "$GF_DIFF_COMMIT_PREVIEW_DEFAULTS" diff "$REF^" "$REF" $QUERY |
+        gf_helper_inspect_diff_renderer
+    } | gf_helper_inspect_pager
+  else
+    # shellcheck disable=2086
+    gf_git_command_with_header_default_parameters 1 "$GF_DIFF_COMMIT_PREVIEW_DEFAULTS" diff "$BASE" "$REF" $QUERY |
+      gf_helper_inspect_diff_renderer |
+      gf_helper_inspect_pager
   fi
 }
 

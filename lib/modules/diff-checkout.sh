@@ -14,18 +14,22 @@ if [ "$(particularly_small_screen)" = '1' ]; then
 fi
 
 gf_fzf_diff_checkout() {
+  BRANCH_QUOTED="$(quote_params "$1")"
+  PARAMETERS_QUOTED="$(quote_params "$1" "$2")"
+
   # shellcheck disable=2016
-  RELOAD_COMMAND="git fuzzy helper diff_direct_menu_content {q} '$1' '$2'"
-  PREVIEW_COMMAND="git fuzzy helper diff_direct_preview_content {q} {} '$1'"
+  RELOAD_COMMAND="git fuzzy helper diff_direct_menu_content {q} $PARAMETERS_QUOTED"
+  PREVIEW_COMMAND="git fuzzy helper diff_direct_preview_content {q} {} $BRANCH_QUOTED"
 
   gf_fzf -m --phony \
     --header-lines=2 \
     --header "$GF_DIFF_CHECKOUT_HEADER" \
     --preview "$PREVIEW_COMMAND" \
-    --bind "click-header:reload(git fuzzy helper diff_direct_menu_content {q} '$1' '$2')" \
-    --bind "backward-eof:reload(git fuzzy helper diff_direct_menu_content {q} '$1' '$2')" \
+    --bind "click-header:reload(git fuzzy helper diff_direct_menu_content {q} $PARAMETERS_QUOTED)" \
+    --bind "backward-eof:reload(git fuzzy helper diff_direct_menu_content {q} $PARAMETERS_QUOTED)" \
     --bind "change:reload($RELOAD_COMMAND)" \
-    --bind "enter:execute-silent(git fuzzy helper diff_checkout_file '$1' {+})+down"
+    --bind "$(gf_inspect_binding diff_direct_inspect '{q}' '{}' "$BRANCH_QUOTED")" \
+    --bind "enter:execute-silent(git fuzzy helper diff_checkout_file $BRANCH_QUOTED {+})+down"
 }
 
 gf_diff_checkout() {

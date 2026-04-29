@@ -19,6 +19,7 @@ gf_fzf_pr_select() {
     --preview 'git fuzzy helper pr_preview_content {1}' \
     --bind 'alt-o:execute(git fuzzy helper pr_show {1})' \
     --bind 'alt-l:execute(git fuzzy helper pr_log {1})' \
+    --bind "$(gf_inspect_binding pr_inspect '{1}')" \
     --bind 'enter:execute(git fuzzy helper pr_select {1})'
 }
 

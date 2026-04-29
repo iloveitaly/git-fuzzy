@@ -36,17 +36,35 @@ gf_helper_diff_menu_content() {
 }
 
 gf_helper_diff_preview_content() {
-  gf_preview_shortcuts_header
-
   if [ -z "$1" ]; then
+    gf_preview_shortcuts_header
     echo "nothing to show"
   elif [ "$1" = '.' ]; then
+    gf_preview_shortcuts_header
     echo "nothing to show"
   else
+    gf_preview_shortcuts_header_with_inspect
+
     REF="$1"
     # shellcheck disable=2086
     gf_git_command_with_header 1 diff $GF_DIFF_COMMIT_RANGE_PREVIEW_DEFAULTS "$(git merge-base "$GF_BASE_BRANCH" "$REF")" "$REF" | gf_diff_renderer
   fi
+}
+
+gf_helper_diff_inspect() {
+  case "$1" in
+    ''|'.'|'nothing')
+      return
+      ;;
+  esac
+
+  trap 'exit 0' INT
+
+  REF="$1"
+  # shellcheck disable=2086
+  gf_git_command_with_header 1 diff $GF_DIFF_COMMIT_RANGE_PREVIEW_DEFAULTS "$(git merge-base "$GF_BASE_BRANCH" "$REF")" "$REF" |
+    gf_helper_inspect_diff_renderer |
+    gf_helper_inspect_pager
 }
 
 gf_helper_diff_select() {

@@ -8,14 +8,14 @@ GIT_FUZZY_STATUS_EDIT_KEY="${GIT_FUZZY_STATUS_EDIT_KEY:-Alt-E}"
 GIT_FUZZY_STATUS_COMMIT_KEY="${GIT_FUZZY_STATUS_COMMIT_KEY:-Alt-C}"
 GIT_FUZZY_STATUS_RESET_KEY="${GIT_FUZZY_STATUS_RESET_KEY:-Alt-R}"
 GIT_FUZZY_STATUS_DISCARD_KEY="${GIT_FUZZY_STATUS_DISCARD_KEY:-Alt-U}"
-GIT_FUZZY_STATUS_DIFF_KEY="${GIT_FUZZY_STATUS_DIFF_KEY:-Alt-I}"
+GIT_FUZZY_STATUS_DIFF_KEY="${GIT_FUZZY_STATUS_DIFF_KEY:-$GIT_FUZZY_INSPECT_KEY}"
 
 GF_STATUS_HEADER='
 Type to filter. '"${WHITE}Enter${NORMAL} to ${GREEN}ACCEPT${NORMAL}"'
 
   '"${GRAY}-- (${NORMAL}*${GRAY}) editor: ${MAGENTA}${EDITOR} ${NORMAL}${GF_EDITOR_ARGS}${NORMAL}"'
   '""'
- '"${GREEN}amend ✁${NORMAL}  ${WHITE}${GIT_FUZZY_STATUS_AMEND_KEY}${NORMAL}  ${GREEN}stage -p ${BOLD}⇡  ${NORMAL}${WHITE}${GIT_FUZZY_STATUS_ADD_PATCH_KEY}${NORMAL}      * ${GREEN}${BOLD}edit ✎${NORMAL}  ${WHITE}$GIT_FUZZY_STATUS_EDIT_KEY${NORMAL}     ${GREEN}${BOLD}inspect 🔍${NORMAL}  ${WHITE}$GIT_FUZZY_STATUS_DIFF_KEY${NORMAL}"'
+ '"${GREEN}amend ✁${NORMAL}  ${WHITE}${GIT_FUZZY_STATUS_AMEND_KEY}${NORMAL}  ${GREEN}stage -p ${BOLD}⇡  ${NORMAL}${WHITE}${GIT_FUZZY_STATUS_ADD_PATCH_KEY}${NORMAL}      * ${GREEN}${BOLD}edit ✎${NORMAL}  ${WHITE}$GIT_FUZZY_STATUS_EDIT_KEY${NORMAL}"'
    '"${GREEN}all ☑${NORMAL}  ${WHITE}${GIT_FUZZY_SELECT_ALL_KEY}${NORMAL}     ${GREEN}stage ${BOLD}⇡${NORMAL}  ${WHITE}$GIT_FUZZY_STATUS_ADD_KEY${NORMAL}     ${RED}${BOLD}discard ✗${NORMAL}  ${WHITE}$GIT_FUZZY_STATUS_DISCARD_KEY${NORMAL}"'
   '"${GREEN}none ☐${NORMAL}  ${WHITE}${GIT_FUZZY_SELECT_NONE_KEY}${NORMAL}     ${GREEN}reset ${RED}${BOLD}⇣${NORMAL}  ${WHITE}$GIT_FUZZY_STATUS_RESET_KEY${NORMAL}    * ${RED}${BOLD}commit ${NORMAL}${RED}⇧${NORMAL}  ${WHITE}$GIT_FUZZY_STATUS_COMMIT_KEY${NORMAL}"'
 
@@ -38,7 +38,7 @@ gf_fzf_status() {
             --bind 'start:execute-silent(git fuzzy helper status_watch $FZF_PORT > /dev/null 2>&1 &)' \
             --bind "click-header:$passive_reload" \
             --bind "backward-eof:$passive_reload" \
-            --bind "$(lowercase "$GIT_FUZZY_STATUS_DIFF_KEY"):execute(git fuzzy helper status_diff {1} {2} {4})" \
+            --bind "$(gf_inspect_binding status_diff '{1}' '{2}' '{4}')" \
             --bind "$(lowercase "$GIT_FUZZY_STATUS_AMEND_KEY"):execute-silent(git fuzzy helper status_amend {+2..})+$reload_sync+down" \
             --bind "$(lowercase "$GIT_FUZZY_STATUS_ADD_KEY"):execute-silent(git fuzzy helper status_add {+2..})+$reload_sync+down" \
             --bind "$(lowercase "$GIT_FUZZY_STATUS_RESET_KEY"):execute-silent(git fuzzy helper status_reset {+2..})+$reload_sync+down" \

@@ -27,7 +27,8 @@ gf_fzf_stash() {
     --bind 'backward-eof:reload(git fuzzy helper stash_menu_content '"$(quote_params "$@")"')' \
     --bind "$(lowercase "$GIT_FUZZY_DROP_KEY"):execute(git fuzzy helper stash_drop {1})+reload(git fuzzy helper stash_menu_content)" \
     --bind "$(lowercase "$GIT_FUZZY_POP_KEY"):execute(git fuzzy helper stash_pop {1})+reload(git fuzzy helper stash_menu_content)" \
-    --bind "$(lowercase "$GIT_FUZZY_APPLY_KEY"):execute(git fuzzy helper stash_apply {1})+reload(git fuzzy helper stash_menu_content)"
+    --bind "$(lowercase "$GIT_FUZZY_APPLY_KEY"):execute(git fuzzy helper stash_apply {1})+reload(git fuzzy helper stash_menu_content)" \
+    --bind "$(gf_inspect_binding stash_inspect '{1}')"
 }
 
 gf_stash() {

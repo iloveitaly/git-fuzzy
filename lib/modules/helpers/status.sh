@@ -19,7 +19,7 @@ gf_helper_status_preview_content() {
   FILE_PATH="$2"
   RENAMED_FILE_PATH="$3"
 
-  gf_preview_shortcuts_header
+  gf_preview_shortcuts_header_with_inspect
 
   # NB: git status will quote paths with whitespace. currently that's not supported
 
@@ -41,11 +41,11 @@ gf_helper_status_preview_content() {
 
 # Full-screen pager view of a file's diff, invoked from the inspect keybind.
 gf_helper_status_inspect_pager() {
-  less -R -K -+F
+  gf_helper_inspect_pager
 }
 
 gf_helper_status_diff_renderer() {
-  PAGER=cat DELTA_PAGER=cat BAT_PAGER=cat gf_diff_renderer
+  gf_helper_inspect_diff_renderer
 }
 
 gf_helper_status_diff() {

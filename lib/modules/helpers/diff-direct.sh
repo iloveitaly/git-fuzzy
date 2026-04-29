@@ -12,8 +12,6 @@ gf_helper_diff_direct_menu_content() {
 }
 
 gf_helper_diff_direct_preview_content() {
-  gf_preview_shortcuts_header
-
   QUERY="$1"
   shift
 
@@ -35,12 +33,56 @@ gf_helper_diff_direct_preview_content() {
   fi
 
   if [ -z "$FILE_PATH" ]; then
+    gf_preview_shortcuts_header
     echo "nothing to show"
   elif [ -z "$QUERY" ]; then
+    gf_preview_shortcuts_header_with_inspect
+
     # shellcheck disable=2086,2090
     gf_git_command_with_header_default_parameters 1 "$GF_DIFF_FILE_PREVIEW_DEFAULTS" diff "${ARGS_TO_PASS[@]}" -- "$FILE_PATH" | gf_diff_renderer
   else
+    gf_preview_shortcuts_header_with_inspect
+
     # shellcheck disable=2086,2090
     gf_git_command_with_header_default_parameters 1 "$GF_DIFF_FILE_PREVIEW_DEFAULTS" diff "${ARGS_TO_PASS[@]}" -- "$FILE_PATH" | gf_diff_renderer | grep --color=always -E "$QUERY|$"
+  fi
+}
+
+gf_helper_diff_direct_inspect() {
+  QUERY="$1"
+  shift
+
+  FILE_PATH="$1"
+  shift
+
+  [ -z "$FILE_PATH" ] && return
+
+  FOUND=
+  for INDEX_OF_ARG in $(seq 0 $#); do
+    VALUE="${!INDEX_OF_ARG}"
+    if [ "$VALUE" = '--' ]; then
+      FOUND=yes
+      break
+    fi
+  done
+
+  ARGS_TO_PASS=("$@")
+  if [ -n "$FOUND" ]; then
+    ARGS_TO_PASS=("${@:1:$((INDEX_OF_ARG - 1))}")
+  fi
+
+  trap 'exit 0' INT
+
+  if [ -z "$QUERY" ]; then
+    # shellcheck disable=2086,2090
+    gf_git_command_with_header_default_parameters 1 "$GF_DIFF_FILE_PREVIEW_DEFAULTS" diff "${ARGS_TO_PASS[@]}" -- "$FILE_PATH" |
+      gf_helper_inspect_diff_renderer |
+      gf_helper_inspect_pager
+  else
+    # shellcheck disable=2086,2090
+    gf_git_command_with_header_default_parameters 1 "$GF_DIFF_FILE_PREVIEW_DEFAULTS" diff "${ARGS_TO_PASS[@]}" -- "$FILE_PATH" |
+      gf_helper_inspect_diff_renderer |
+      grep --color=always -E "$QUERY|$" |
+      gf_helper_inspect_pager
   fi
 }

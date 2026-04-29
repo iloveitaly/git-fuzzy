@@ -23,6 +23,7 @@ gf_fzf_diff_direct() {
     --preview "$PREVIEW_COMMAND" \
     --bind "click-header:reload(git fuzzy helper diff_direct_menu_content {q} $PARAMETERS_QUOTED)" \
     --bind "backward-eof:reload(git fuzzy helper diff_direct_menu_content {q} $PARAMETERS_QUOTED)" \
+    --bind "$(gf_inspect_binding diff_direct_inspect '{q}' '{}' "$PARAMETERS_QUOTED")" \
     --bind "change:reload($RELOAD_COMMAND)"
 }
 

@@ -5,6 +5,7 @@ GIT_FUZZY_SELECT_NONE_KEY="${GIT_FUZZY_SELECT_NONE_KEY:-Alt-D}"
 GIT_FUZZY_PREVIEW_WRAP_KEY="${GIT_FUZZY_PREVIEW_WRAP_KEY:-Alt-W}"
 GIT_FUZZY_PREVIEW_SIZE_INCREASE_KEY="${GIT_FUZZY_PREVIEW_SIZE_INCREASE_KEY:-Alt-=}"
 GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY="${GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY:-Alt--}"
+GIT_FUZZY_INSPECT_KEY="${GIT_FUZZY_INSPECT_KEY:-${GIT_FUZZY_STATUS_DIFF_KEY:-Alt-I}}"
 
 GF_PREVIEW_HEADER_MIN_LINES="${GF_PREVIEW_HEADER_MIN_LINES:-8}"
 GF_PREVIEW_HEADER_MIN_COLUMNS="${GF_PREVIEW_HEADER_MIN_COLUMNS:-50}"
@@ -170,8 +171,29 @@ gf_preview_shortcuts_header() {
   echo
 }
 
+gf_preview_shortcuts_header_with_inspect() {
+  gf_preview_header_is_hidden && return
+
+  printf "   %s%s %s%s  %s%-5s%s     %s%7s %s%s  %s%s%s\n" \
+    "$GREEN" "wrap" "↩ " "$NORMAL" \
+    "$WHITE" "$GIT_FUZZY_PREVIEW_WRAP_KEY" "$NORMAL" \
+    "$GREEN" "bigger" "↗" "$NORMAL" \
+    "$WHITE" "$GIT_FUZZY_PREVIEW_SIZE_INCREASE_KEY" "$NORMAL"
+  printf "%s%-7s %s%s  %s%s%s     %s%7s %s%s  %s%s%s" \
+    "$GREEN" "inspect" "🔍" "$NORMAL" \
+    "$WHITE" "$GIT_FUZZY_INSPECT_KEY" "$NORMAL" \
+    "$GREEN" "smaller" "↙" "$NORMAL" \
+    "$WHITE" "$GIT_FUZZY_PREVIEW_SIZE_DECREASE_KEY" "$NORMAL"
+  echo
+  echo
+}
+
 gf_helper_preview_shortcuts_header() {
   gf_preview_shortcuts_header
+}
+
+gf_helper_preview_shortcuts_header_with_inspect() {
+  gf_preview_shortcuts_header_with_inspect
 }
 
 gf_helper_preview_resize() {
@@ -252,6 +274,26 @@ gf_diff_renderer() {
   else
     cat -
   fi
+}
+
+gf_inspect_binding() {
+  local helper="$1"
+  local arg
+  shift
+
+  printf '%s:execute(git fuzzy helper %s' "$(lowercase "$GIT_FUZZY_INSPECT_KEY")" "$helper"
+  for arg in "$@"; do
+    [ -n "$arg" ] && printf ' %s' "$arg"
+  done
+  printf ')'
+}
+
+gf_helper_inspect_pager() {
+  less -R -K -+F
+}
+
+gf_helper_inspect_diff_renderer() {
+  PAGER=cat DELTA_PAGER=cat BAT_PAGER=cat gf_diff_renderer
 }
 
 gf_command_logged() {

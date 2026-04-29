@@ -46,11 +46,12 @@ gf_helper_branch_menu_content() {
 }
 
 gf_helper_branch_preview_content() {
-  gf_preview_shortcuts_header
-
   if [ -z "$1" ]; then
+    gf_preview_shortcuts_header
     echo "nothing to show"
   else
+    gf_preview_shortcuts_header_with_inspect
+
     if [ "$#" -eq 2 ] && [ "$1" != "$2" ]; then
       # use $2 as the "base" and $1 as the "change"
       # shellcheck disable=2086
@@ -60,6 +61,24 @@ gf_helper_branch_preview_content() {
       # shellcheck disable=2086
       gf_git_command_with_header 1 diff $GF_DIFF_COMMIT_RANGE_PREVIEW_DEFAULTS "$(git merge-base "$GF_BASE_BRANCH" "$1")" "$1" | gf_diff_renderer
     fi
+  fi
+}
+
+gf_helper_branch_inspect() {
+  [ -z "$1" ] && return
+
+  trap 'exit 0' INT
+
+  if [ "$#" -eq 2 ] && [ "$1" != "$2" ]; then
+    # shellcheck disable=2086
+    gf_git_command_with_header 1 diff $GF_DIFF_COMMIT_RANGE_PREVIEW_DEFAULTS "$2" "$1" |
+      gf_helper_inspect_diff_renderer |
+      gf_helper_inspect_pager
+  else
+    # shellcheck disable=2086
+    gf_git_command_with_header 1 diff $GF_DIFF_COMMIT_RANGE_PREVIEW_DEFAULTS "$(git merge-base "$GF_BASE_BRANCH" "$1")" "$1" |
+      gf_helper_inspect_diff_renderer |
+      gf_helper_inspect_pager
   fi
 }
 
